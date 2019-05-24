@@ -25,7 +25,7 @@ SECRET_KEY = 'yhq!ci3tvqedk!wi8fkg&o4%=y*+u2y9q&5gb07%+7-2(z+2lv'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'i_eye_proto.apps.IEyeProtoConfig'
+    'rest_framework',
+    'i_eye_proto.apps.IEyeProtoConfig',
+    'snippets.apps.SnippetsConfig'
 ]
 
 MIDDLEWARE = [

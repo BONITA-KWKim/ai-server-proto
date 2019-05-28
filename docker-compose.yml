@@ -3,13 +3,18 @@ version: '3'
 services:
   djangoapp:
     build: .
+    container_name: ai_server_proto_1
     volumes:
       - .:/opt/services/djangoapp/src
+      - ./djangoapp-entrypoint.sh:/opt/services/djangoapp/src/djangoapp-entrypoint.sh
     networks:
       - nginx_network
+    command:
+      - /opt/services/djangoapp/src/djangoapp-entrypoint.sh
 
   nginx:
     image: nginx:1.13
+    container_name: nginx_server_1
     ports:
       - 8000:80
     volumes:

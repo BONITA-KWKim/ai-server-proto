@@ -8,7 +8,7 @@ services:
       - .:/opt/services/djangoapp/src
       - ./djangoapp-entrypoint.sh:/opt/services/djangoapp/src/djangoapp-entrypoint.sh
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/services/djangoapp/src/My First Project-cf397e8f9d9b.json
     networks:
       - nginx_network
     command:

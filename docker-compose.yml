@@ -7,6 +7,8 @@ services:
     volumes:
       - .:/opt/services/djangoapp/src
       - ./djangoapp-entrypoint.sh:/opt/services/djangoapp/src/djangoapp-entrypoint.sh
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS
     networks:
       - nginx_network
     command:

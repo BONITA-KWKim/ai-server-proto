@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: MTS-Ai-server-proto-001
+AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   A prototype of Ai Server from MTS corp.
   by kwkim

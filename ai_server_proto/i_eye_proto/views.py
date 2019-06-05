@@ -1,9 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from rest_framework import generics
-from rest_framework.decorators import api_view
+from django.contrib.auth.models import User
+from rest_framework import generics, viewsets
+from rest_framework import status
+from rest_framework.decorators import api_view, action, detail_route
+from rest_framework.response import Response
+from rest_framework import permissions
+from rest_framework.permissions import AllowAny
 from .models import Checklist
-from .serializers import CheckListSerializer
+from .serializers import CheckListSerializer, UserSerializer
 
 import io
 import os
@@ -34,6 +39,32 @@ class CheckListDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CheckListSerializer
 
 
+class CheckListViewSet(viewsets.ModelViewSet):
+    queryset = Checklist.objects.all()
+    serializer_class = CheckListSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
+
+    @action(detail=False)
+    def recent_data(self, request, pk=None):
+        print("recent data")
+        recent_data = Checklist.objects.all().order_by('-created')
+        page = self.paginate_queryset(recent_data)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(recent_data, many=True)
+        return Response(serializer.data)
+
+
+def get_permissions(self):
+    if self.action == 'list':
+        permission_classes = [AllowAny, ]
+    else:
+        permission_classes = [AllowAny, ]
+    return [permission() for permission in permission_classes]
+
+
 def test_google_vision():
     # Instantiates a client
     client = vision.ImageAnnotatorClient()
@@ -56,3 +87,23 @@ def test_google_vision():
     print('Labels: ')
     for label in labels:
         print('desc: ' + label.description + ', score: %.3f' % label.score)
+    '''
+    temp = 'desc: ' + labels[0].description + ', score: %.3f' % labels[0].score
+    cl = Checklist(reserved=temp)
+    cl.save()
+    '''
+
+
+'''
+User
+'''
+
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

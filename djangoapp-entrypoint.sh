@@ -55,9 +55,9 @@ rm ./pyscript.py
 
 
 # test
-echo "========== $WEB_APPLICATION_01 test start"
-python $DJANGO_MANAGE test $WEB_APPLICATION_01
-echo "========== $WEB_APPLICATION_01 test end"
+#echo "========== $WEB_APPLICATION_01 test start"
+#python $DJANGO_MANAGE test $WEB_APPLICATION_01
+#echo "========== $WEB_APPLICATION_01 test end"
 
 
 # start gunicorn and django

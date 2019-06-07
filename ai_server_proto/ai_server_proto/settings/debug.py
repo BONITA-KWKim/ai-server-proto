@@ -10,3 +10,4 @@ ALLOWED_HOSTS = ['127.0.0.1',
 
 DEBUG = True
 
+WSGI_APPLICATION = 'ai_server_proto.wsgi.debug.application'

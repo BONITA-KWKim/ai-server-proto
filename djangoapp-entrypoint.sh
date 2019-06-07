@@ -65,6 +65,5 @@ echo "start django framework"
 
 #gunicorn --chdir /opt/services/djangoapp/src/self_receipe --bind :8000 self_receipe.wsgi:application
 #gunicorn --chdir /opt/services/djangoapp/src/self_receipe --workers=2 --bind :8000 self_receipe.wsgi:application
-gunicorn --chdir /opt/services/djangoapp/src/ai_server_proto --workers=2 --bind 0.0.0.0:8000 ai_server_proto.wsgi:application
-#gunicorn --chdir /opt/services/djangoapp/src/ai_server_proto --workers=2 --bind 0.0.0.0:8000 ai_server_proto.wsgi.debug:application
-#python manage.py runserver
+#gunicorn --chdir /opt/services/djangoapp/src/ai_server_proto --workers=2 --bind 0.0.0.0:8000 ai_server_proto.wsgi:application
+gunicorn --chdir /opt/services/djangoapp/src/ai_server_proto --workers=2 --bind 0.0.0.0:8000 ai_server_proto.wsgi.deploy:application

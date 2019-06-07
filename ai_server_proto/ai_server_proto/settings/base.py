@@ -51,9 +51,6 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = 'ai_server_proto.wsgi.application'
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

@@ -13,3 +13,6 @@ DATABASES = {
     'default': SETTING_PRD_DIC['DATABASES']["default"]
 }
 '''
+
+
+WSGI_APPLICATION = 'ai_server_proto.wsgi.deploy.application'

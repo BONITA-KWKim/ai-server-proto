@@ -45,6 +45,7 @@ lib64/
 parts/
 sdist/
 var/
+venv/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -90,4 +91,5 @@ migrations
 db.sqlite3
 
 
-
+### GCP ###
+*.json

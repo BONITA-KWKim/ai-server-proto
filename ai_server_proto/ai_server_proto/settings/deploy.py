@@ -13,10 +13,3 @@ DATABASES = {
     'default': SETTING_PRD_DIC['DATABASES']["default"]
 }
 '''
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-

@@ -3,6 +3,7 @@ version: '3'
 services:
   djangoapp:
     build: .
+    image: bonita/ai_server_proto
     container_name: ai_server_proto_1
     volumes:
       - .:/opt/services/djangoapp/src
@@ -29,4 +30,3 @@ services:
 networks:
   nginx_network:
     driver: bridge
-

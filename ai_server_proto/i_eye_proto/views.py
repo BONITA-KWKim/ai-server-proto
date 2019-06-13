@@ -7,8 +7,12 @@ from rest_framework.decorators import api_view, action, detail_route
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny
-from .models import Checklist
-from .serializers import CheckListSerializer, UserSerializer
+
+from rest_framework.views import APIView
+from django.http import Http404
+
+from .models import Diagnosis, EyeImage
+from .serializers import UserSerializer, DiagnosisSerializer, EyeImageSerializer
 
 import io
 import os
@@ -27,34 +31,6 @@ def index(request):
 @api_view(['GET'])
 def version_info(request):
     return HttpResponse("V0.1.0 Prototype version")
-
-
-class CheckList(generics.ListCreateAPIView):
-    queryset = Checklist.objects.all()
-    serializer_class = CheckListSerializer
-
-
-class CheckListDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Checklist.objects.all()
-    serializer_class = CheckListSerializer
-
-
-class CheckListViewSet(viewsets.ModelViewSet):
-    queryset = Checklist.objects.all()
-    serializer_class = CheckListSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
-
-    @action(detail=False)
-    def recent_data(self, request, pk=None):
-        print("recent data")
-        recent_data = Checklist.objects.all().order_by('-created')
-        page = self.paginate_queryset(recent_data)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(recent_data, many=True)
-        return Response(serializer.data)
 
 
 def get_permissions(self):
@@ -107,3 +83,43 @@ class UserList(generics.ListAPIView):
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+'''
+diagnosis test
+'''
+
+
+class DiagnosisList(generics.ListCreateAPIView):
+    queryset = Diagnosis.objects.all()
+    serializer_class = DiagnosisSerializer
+    permission_classes = [permissions.AllowAny, ]
+
+    def list(self, request):
+        print("diagnosis get method")
+        queryset = self.get_queryset()
+        serializer = DiagnosisSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        print("diagnosis post method")
+
+        file_serializer = EyeImageSerializer(data=request.FILES)
+
+        if file_serializer.is_valid():
+            file_serializer.save()
+            return Response("Success for saving the image")
+        else:
+            return Response("post")
+
+
+class DiagnosisDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Diagnosis.objects.all()
+    serializer_class = DiagnosisSerializer
+    permission_classes = [permissions.AllowAny, ]
+
+
+class EyeImageList(generics.ListCreateAPIView):
+    queryset = EyeImage.objects.all()
+    serializer_class = EyeImageSerializer
+    permission_classes = [permissions.AllowAny, ]

@@ -12,8 +12,11 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/opt/services/djangoapp/src/My First Project-cf397e8f9d9b.json
     networks:
       - nginx_network
+      - database1_network
     command:
       - /opt/services/djangoapp/src/djangoapp-entrypoint.sh
+    depends_on:
+      - database1
 
   nginx:
     image: nginx:1.13
@@ -27,6 +30,22 @@ services:
     networks:
       - nginx_network
 
+  database1:
+    image: postgres:10
+    container_name: ai_server_proto_db_1
+    env_file:
+      - config/db/database1_env
+    networks:
+      - database1_network
+    volumes:
+      - database1_volume:/var/lib/postgresql/data
+
+
 networks:
   nginx_network:
     driver: bridge
+  database1_network:
+    driver: bridge
+
+volumes:
+  database1_volume:

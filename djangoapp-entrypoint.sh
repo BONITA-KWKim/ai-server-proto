@@ -10,6 +10,9 @@ DJANGO_MANAGE=$DJANGO_PRO/manage.py
 WEB_APPLICATION_01=i_eye_proto
 WEB_APPLICATION_02=snippets
 
+cd $DJANGO_PRO
+export DJANGO_SETTINGS_MODULE=ai_server_proto.settings.deploy
+
 # Collect static files
 #echo "Collect static files"
 #python $DJANGO_MANAGE collectstatic --noinput
@@ -23,9 +26,6 @@ python $DJANGO_MANAGE migrate
 
 # create super user
 echo "create super user"
-
-cd $DJANGO_PRO
-#export DJANGO_SETTINGS_MODULE=ai_server_proto.settings
 
 ##########
 cat << EOF > pyscript.py

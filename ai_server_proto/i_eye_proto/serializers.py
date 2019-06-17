@@ -23,4 +23,5 @@ class EyeImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EyeImage
-        fields = "__all__"
+        #fields = "__all__"
+        fields = ('id', 'user_id', 'eye_photo', 'created')

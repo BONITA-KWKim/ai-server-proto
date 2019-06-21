@@ -14,3 +14,13 @@ def get_server_info_value(key: str):
                 return v
 
         raise ValueError("Cannot check server information")
+
+
+def create_log_directory(base_dir):
+    log_directory_name = 'logs'
+
+    if os.path.exists(os.path.join(base_dir, log_directory_name)) is False:
+        os.makedirs(os.path.join(base_dir, log_directory_name))
+
+    return os.path.join(base_dir, log_directory_name)
+

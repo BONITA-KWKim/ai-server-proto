@@ -1,28 +1,24 @@
-from django.shortcuts import render, get_object_or_404
+import logging
+
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 
-from rest_framework import generics, viewsets
+from rest_framework import generics
 from rest_framework import status
-from rest_framework.decorators import api_view, action, detail_route
-from rest_framework.response import Response
 from rest_framework import permissions
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-from rest_framework.views import APIView
-from django.http import Http404
-
-from .forms import ImageUploadForm
-from .models import Diagnosis, EyeImage
-from .serializers import UserSerializer, DiagnosisSerializer, EyeImageSerializer
-from .custom_utils.whitelist_for_labels import get_whitelist_value, get_refusal_value, get_whitelist_score_value
-from .custom_utils.eye_disease import get_disease_value, get_disease_score_value
-
-# imports the Google Cloud client library
-from google.cloud import vision
-from google.cloud.vision import types
-
-import logging
+from .models import Diagnosis
+from .models import EyeImage
+from .serializers import UserSerializer
+from .serializers import DiagnosisSerializer
+from .serializers import EyeImageSerializer
+from .custom_utils.i_eye_permissions import get_permissions
+from .image_analyses.i_eye_google_vision import get_google_vision_response
+from .image_analyses.i_eye_image_analyses import recognize_human_eye
+from .image_analyses.i_eye_image_analyses import analysis_eyes
+from .image_analyses.i_eye_utils import collect_diagnosis
 
 # Create your views here.
 logger = logging.getLogger('ai_server_proto.i_eye_proto')
@@ -30,9 +26,7 @@ logger = logging.getLogger('ai_server_proto.i_eye_proto')
 
 @api_view(['GET'])
 def index(request):
-    logger.debug("test!!")
-    logger.info("information test !!")
-    return HttpResponse("Hello, world. You're at the IEyeProto index.")
+    return HttpResponse("I-EYE Prototype AI server")
 
 
 @api_view(['GET'])
@@ -55,9 +49,9 @@ class UserDetail(generics.RetrieveAPIView):
     serializer_class = UserSerializer
 
 
-'''
-diagnosis test
-'''
+"""
+diagnosis
+"""
 
 
 class DiagnosisList(generics.ListCreateAPIView):
@@ -91,17 +85,20 @@ class DiagnosisList(generics.ListCreateAPIView):
             print("========== safe search ==========")
             safe_search = response.safe_search_annotation
             if 5 == safe_search.racy or 5 == safe_search.adult:
-                return Response("Safe search", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Safe search",
+                                status=status.HTTP_400_BAD_REQUEST)
 
             '''
             # 2. recognize human eyes
-            White list with index(a-z) is used to recognize human eyes
-            Create parsing json module for the white list referenced by conf.custom_utils
-            We use lower case always, so upper case converts to lower case
+            White list with index(a-z) is used to recognize human eyes.
+            Create parsing json module for the white list referenced by 
+            conf.custom_utils.
+            We use lower case always, so upper case converts to lower case.
             '''
             print("========== label annotations ==========")
             if recognize_human_eye(response.label_annotations) is False:
-                return Response("Bad image", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Bad image",
+                                status=status.HTTP_400_BAD_REQUEST)
 
             '''
             # 3. What state is the eyes
@@ -109,11 +106,12 @@ class DiagnosisList(generics.ListCreateAPIView):
             print("========== web detections ==========")
             diagnosis = analysis_eyes(response.web_detection)
 
-            print("[DEB] to be saved data", collect_diagnosis(request.data["user_id"],
-                                                              response.label_annotations,
-                                                              response.web_detection.best_guess_labels,
-                                                              response.web_detection.web_entities,
-                                                              diagnosis))
+            print("[DEB] to be saved data",
+                  collect_diagnosis(request.data["user_id"],
+                                    response.label_annotations,
+                                    response.web_detection.best_guess_labels,
+                                    response.web_detection.web_entities,
+                                    diagnosis))
 
             # save results into database
             # web_detections = response.web_detection
@@ -144,116 +142,3 @@ class EyeImageList(generics.ListAPIView):
     queryset = EyeImage.objects.all()
     serializer_class = EyeImageSerializer
     permission_classes = [permissions.AllowAny, ]
-
-
-'''
-Internal functions
-'''
-
-
-def get_permissions(self):
-    if self.action == 'list':
-        permission_classes = [AllowAny, ]
-    else:
-        permission_classes = [AllowAny, ]
-    return [permission() for permission in permission_classes]
-
-
-def get_google_vision_response(photo):
-    print("[DEB] get google vision response")
-    # Instantiates a client
-    client = vision.ImageAnnotatorClient()
-
-    content = photo['eye_photo'].read()
-
-    response = client.annotate_image({
-        "image": {
-            "content": content
-        },
-        "features": [
-            {
-                "type": vision.enums.Feature.Type.SAFE_SEARCH_DETECTION
-            },
-            {
-                "type": vision.enums.Feature.Type.LABEL_DETECTION
-            },
-            {
-                "type": vision.enums.Feature.Type.WEB_DETECTION
-            }
-        ],
-    })
-
-    return response
-
-
-def recognize_human_eye(labels):
-    label_score = 0
-
-    for l in labels:
-        print("[DEB] desc:", l.description)
-        print("[DEB] score:", l.score)
-        if 0.9 > l.score:
-            break
-
-        first_char = l.description[0]
-        whitelist_by_index = get_whitelist_value(first_char.lower())
-        refusal_list_by_index = get_refusal_value(first_char.lower())
-
-        if l.description.lower() in whitelist_by_index:
-            print(l.description.lower())
-            print(whitelist_by_index)
-            label_score += 1
-
-        if any(l.description.lower() is s for s in refusal_list_by_index):
-            print(l.description.lower())
-            print(refusal_list_by_index)
-            return False
-
-    if get_whitelist_score_value() > label_score:
-        print("[DEB] not enough score: %d" % label_score)
-        return False
-
-    print("[DEB] score value: ", label_score)
-
-    return True
-
-
-def analysis_eyes(web_detections):
-    best_guess = web_detections.best_guess_labels
-    web_entities = web_detections.web_entities
-    print("[DEB] best guess: ", best_guess)
-    print("[DEB] web entities: ", web_entities)
-
-    # best guess
-    for b in best_guess:
-        first_char = b.label[0]
-        disease_list_by_index = get_disease_value(first_char.lower())
-        if b.label.lower() in disease_list_by_index:
-            print("Success: Disease[%s]" % b.label.lower())
-            # return Response("Success: Disease[%s]" % b.label.lower(), status=status.HTTP_201_CREATED)
-
-    # web entities
-    for w in web_entities:
-        print("[DEB] desc: ", w.description)
-        print("[DEB] score: ", w.score)
-        first_char = w.description[0]
-        disease_list_by_index = get_disease_value(first_char.lower())
-
-        if w.description.lower() in disease_list_by_index:
-            print("Success: Disease[%s]" % w.description.lower())
-            # return Response("Success disease: %s" % w.description.lower(), status=status.HTTP_201_CREATED)
-
-    print("[DEB] end of the image analysis")
-
-    diagnosis = "conjunctivitis"
-    return diagnosis
-
-
-def collect_diagnosis(user_id, labels, best_guess, web_entities, diagnosis):
-    return {
-        "user_id": user_id,
-        "label": labels,
-        "best_guess": best_guess,
-        "web_entities": web_entities,
-        "diagnosis": diagnosis
-    }

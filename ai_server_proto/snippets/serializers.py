@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
+from .models import Flavor
 
 
 class SnippetSerializer(serializers.ModelSerializer):
@@ -17,3 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'snippets')
+
+
+class FlavorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flavor
+        fields = '__all__'

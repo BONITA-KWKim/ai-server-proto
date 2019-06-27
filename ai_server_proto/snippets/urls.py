@@ -14,6 +14,8 @@ urlpatterns = [
     path('users/', views.UserList.as_view()),
     path('users/<int:pk>/', views.UserDetail.as_view()),
     path('schema/', schema_view),
+    path(r'snippets/flavor/', views.FlavorList.as_view()),
+    path(r'snippets/flavor/<int:pk>/', views.FlavorDetail.as_view()),
 ]
 
 urlpatterns += [

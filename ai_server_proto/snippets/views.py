@@ -1,8 +1,6 @@
-from .models import Snippet
-from .serializers import SnippetSerializer, UserSerializer
-from .permissions import IsOwnerOrReadOnly
 from django.http import Http404
 from django.contrib.auth.models import User
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -12,6 +10,13 @@ from rest_framework.reverse import reverse
 from rest_framework import mixins
 from rest_framework import permissions
 from rest_framework import generics
+
+from .models import Snippet
+from .models import Flavor
+from .serializers import SnippetSerializer
+from .serializers import UserSerializer
+from .serializers import FlavorSerializer
+from .permissions import IsOwnerOrReadOnly
 
 
 # Create your views here.
@@ -99,7 +104,8 @@ class SnippetDetail(mixins.ListModelMixin,
 class SnippetDetail(generics.RetrieveUpdateAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly,)
 
 
 class UserList(generics.ListAPIView):
@@ -119,6 +125,18 @@ class SnippetHighlight(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         snippet = self.get_object()
         return Response(snippet.highlighted)
+
+
+class FlavorList(generics.ListCreateAPIView):
+    queryset = Flavor.objects.all()
+    serializer_class = FlavorSerializer
+    permission_classes = [permissions.AllowAny, ]
+
+
+class FlavorDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Flavor.objects.all()
+    serializer_class = FlavorSerializer
+    permission_classes = [permissions.AllowAny, ]
 
 
 @api_view(['GET'])

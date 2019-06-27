@@ -9,7 +9,6 @@ LEXERS = [item for item in get_all_lexers() if item[1]]
 LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
 STYLE_CHOICES = sorted((item, item) for item in get_all_styles())
 
-
 class Snippet(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, blank=True, default='')
@@ -31,3 +30,21 @@ class Snippet(models.Model):
 
     class Meta:
         ordering = ('created',)
+
+
+# Create your models here.
+class TimeStampedModel(models.Model):
+    """
+    Abstract class model updating 'created' and 'modified' fields automatically
+    """
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Flavor(TimeStampedModel):
+
+    title = models.CharField(max_length=200)
+

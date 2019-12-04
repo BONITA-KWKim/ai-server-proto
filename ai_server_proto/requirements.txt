@@ -6,7 +6,7 @@ Click==7.0
 coreapi==2.3.3
 coreapi-cli==1.0.9
 coreschema==0.0.4
-Django==2.2.1
+Django==2.2.8
 django-debug-toolbar==1.11
 django-filter==2.1.0
 django-modelcluster==4.4

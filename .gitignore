@@ -96,4 +96,6 @@ db.sqlite3
 *.json
 
 ### custom ###
+.idea/
 pic_folder/
+

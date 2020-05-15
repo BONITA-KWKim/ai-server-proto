@@ -94,3 +94,6 @@ db.sqlite3
 
 ### GCP ###
 *.json
+
+### custom ###
+pic_folder/

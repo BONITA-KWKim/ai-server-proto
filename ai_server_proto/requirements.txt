@@ -6,7 +6,7 @@ Click==7.0
 coreapi==2.3.3
 coreapi-cli==1.0.9
 coreschema==0.0.4
-Django==2.2.1
+Django>=2.2.10
 django-debug-toolbar==1.11
 django-filter==2.1.0
 django-modelcluster==4.4
@@ -24,13 +24,13 @@ googleapis-common-protos==1.6.0
 grpcio==1.21.1
 gunicorn==19.9.0
 html5lib==1.0.1
-httpie==1.0.2
+httpie>=1.0.3
 idna==2.8
 itypes==1.1.0
 Jinja2==2.10.1
 Markdown==3.1.1
 MarkupSafe==1.1.1
-Pillow==5.4.1
+Pillow>=6.2.2
 protobuf==3.8.0
 psycopg2-binary==2.8.2
 pyasn1==0.4.5
@@ -45,6 +45,6 @@ sqlparse==0.3.0
 Unidecode==1.0.23
 uritemplate==3.0.0
 urllib3==1.25.3
-wagtail==2.5.1
+wagtail>=2.7.2
 webencodings==0.5.1
 Willow==1.1
